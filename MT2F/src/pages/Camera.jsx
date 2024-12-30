@@ -6,16 +6,26 @@ import { useLocation } from "react-router-dom";
 const Camera = () => {
   const [result, setResult] = useState(null);
   const [selectedTest, setSelectedTest] = useState("");
+  const [testDescription, setTestDescription] = useState("");
+  const [testResultStatus, setTestResultStatus] = useState(""); // Positive/Negative
 
   const location = useLocation();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const testName = params.get("test");
-    if (testName) {
+    const description = params.get("description");
+
+    if (testName && description) {
       setSelectedTest(testName);
+      setTestDescription(description);
     }
   }, [location]);
+
+  // Extract the first word for comparison
+  const getFirstWord = (text) => {
+    return text.split(" ")[0].toLowerCase(); // Get the first word and make it lowercase
+  };
 
   const analyzeImage = async (imageBlob) => {
     try {
@@ -33,7 +43,21 @@ const Camera = () => {
       }
 
       const data = await response.json();
-      setResult(data.result);
+
+      const detectedResult = data.result; // The detected substance from backend (e.g., "starch")
+
+      // Compare the first word of selectedTest and detectedResult
+      const selectedTestFirstWord = getFirstWord(selectedTest);
+      const detectedResultFirstWord = getFirstWord(detectedResult);
+
+      // Compare the first words and set Positive or Negative
+      if (selectedTestFirstWord === detectedResultFirstWord) {
+        setTestResultStatus("Positive");
+      } else {
+        setTestResultStatus("Negative");
+      }
+
+      setResult(detectedResult); // Save the detected result
     } catch (error) {
       console.error("Error analyzing image:", error);
     }
@@ -44,9 +68,20 @@ const Camera = () => {
       <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
         {selectedTest ? `Performing ${selectedTest}` : "Capture Test Strip"}
       </h1>
+      {selectedTest && (
+        <div className="bg-gray-200 p-4 rounded-lg mb-4 max-w-md text-center">
+          <h2 className="text-xl font-semibold">{selectedTest}</h2>
+          <p className="text-sm text-gray-700">{testDescription}</p>
+        </div>
+      )}
       <WebcamCapture onAnalyze={analyzeImage} />
       {result && (
-        <ResultModal result={result} onClose={() => setResult(null)} />
+        <ResultModal
+          result={result} // Passing actual result from backend
+          testResultStatus={testResultStatus} // Positive/Negative status
+          selectedTest={selectedTest}
+          onClose={() => setResult(null)}
+        />
       )}
     </div>
   );
