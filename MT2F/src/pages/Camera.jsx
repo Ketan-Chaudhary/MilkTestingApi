@@ -1,19 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import WebcamCapture from "../components/WebcamCapture";
 import ResultModal from "../components/ResultModal";
+import { useLocation } from "react-router-dom";
 
 const Camera = () => {
   const [result, setResult] = useState(null);
+  const [selectedTest, setSelectedTest] = useState("");
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const testName = params.get("test");
+    if (testName) {
+      setSelectedTest(testName);
+    }
+  }, [location]);
 
   const analyzeImage = async (imageBlob) => {
     try {
-      // Ensure imageBlob is a valid Blob object
-      if (!(imageBlob instanceof Blob)) {
-        throw new Error("Invalid imageBlob. Expected a Blob object.");
-      }
-
       const formData = new FormData();
-      formData.append("image", imageBlob, "captured_image.jpg"); // Use a meaningful file name
+      formData.append("image", imageBlob, "captured_image.jpg");
+      formData.append("test", selectedTest);
 
       const response = await fetch("http://127.0.0.1:5000/predict", {
         method: "POST",
@@ -34,12 +42,9 @@ const Camera = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4 sm:px-6 md:px-8">
       <h1 className="text-2xl font-bold text-gray-800 mb-4 text-center">
-        Capture Test Strip
+        {selectedTest ? `Performing ${selectedTest}` : "Capture Test Strip"}
       </h1>
-      <WebcamCapture
-        onCapture={analyzeImage}
-        onRetake={() => setResult(null)}
-      />
+      <WebcamCapture onAnalyze={analyzeImage} />
       {result && (
         <ResultModal result={result} onClose={() => setResult(null)} />
       )}

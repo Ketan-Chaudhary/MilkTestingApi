@@ -4,19 +4,37 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const navigate = useNavigate();
 
-  // Updated list of tests
   const tests = [
-    { id: 1, name: "Starch Test" },
-    { id: 2, name: "Urea Test" },
-    { id: 3, name: "Detergent Test" },
-    { id: 4, name: "Hydrogen Peroxide Test" },
-    { id: 5, name: "Boric Acid Test" },
-    { id: 6, name: "Neutralizer Test" },
-    { id: 7, name: "MQ1 Test" },
-    { id: 8, name: "MQ2 Test" },
-    { id: 9, name: "Formalin Test" },
-    { id: 10, name: "Ammonium Sulphate Test" },
-    { id: 11, name: "Sugar Test" },
+    {
+      id: 1,
+      name: "Starch",
+      description: "Detects the presence of starch adulteration.",
+    },
+    {
+      id: 2,
+      name: "Urea",
+      description: "Detects the presence of urea in milk.",
+    },
+    {
+      id: 3,
+      name: "Detergent",
+      description: "Checks for detergent adulteration.",
+    },
+    {
+      id: 4,
+      name: "Hydrogen Peroxide",
+      description: "Detects hydrogen peroxide used as a preservative.",
+    },
+    {
+      id: 5,
+      name: "Boric Acid",
+      description: "Detects boric acid adulteration.",
+    },
+    {
+      id: 6,
+      name: "Neutralizer",
+      description: "Identifies pH-neutralizing chemicals.",
+    },
   ];
 
   return (
@@ -28,7 +46,13 @@ const Home = () => {
         {tests.map((test) => (
           <button
             key={test.id}
-            onClick={() => navigate(`/camera?test=${test.name}`)}
+            onClick={() =>
+              navigate(
+                `/camera?test=${test.name}&description=${encodeURIComponent(
+                  test.description
+                )}`
+              )
+            }
             className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 text-center"
           >
             {test.name}
