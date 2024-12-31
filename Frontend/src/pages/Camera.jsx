@@ -35,7 +35,7 @@ const Camera = () => {
       formData.append("image", imageBlob, "captured_image.jpg");
       formData.append("test", selectedTest);
 
-      const response = await fetch("http://127.0.0.1:8160/predict", {
+      const response = await fetch("https://milktestingapi.onrender.com", {
         method: "POST",
         body: formData,
       });
